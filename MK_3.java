@@ -50,9 +50,9 @@ public class MK_3 extends SimState	{
     //public GeomVectorField HouseholdsFZ = new GeomVectorField();
     //public GeomVectorField Households = new GeomVectorField();
     public GeomVectorField agents = new GeomVectorField();
-    //public GeomVectorField ngoagents = new GeomVectorField();
-    //public GeomVectorField elderlyagents = new GeomVectorField();
-    //public GeomVectorField limitedactionsagents = new GeomVectorField();
+    public GeomVectorField ngoagents = new GeomVectorField();
+    public GeomVectorField elderlyagents = new GeomVectorField();
+    public GeomVectorField limitedactionsagents = new GeomVectorField();
 
     ////////////////////// Network ///////////////////////////////
     public GeomPlanarGraph network = new GeomPlanarGraph();	// Stores road network connections
@@ -75,7 +75,6 @@ public class MK_3 extends SimState	{
     }
 
     
-    /*
     ///////////////////// NGOAgent //////////////////////////////
     
     HashMap<Integer, GeomPlanarGraphEdge> idsToEdges1 =
@@ -118,7 +117,6 @@ public class MK_3 extends SimState	{
     public boolean getGoToWork3()	{
         return goToWork3;
     }
-     */
     
     /**
      * Here we set the 'goals', or destinations, which relate to ROAD_ID in NorfolkITNLSOA.csv/.shp...
@@ -131,21 +129,21 @@ public class MK_3 extends SimState	{
      */
 
     Integer[] goals =	{	// MainAgent
-    		13410, 16452, 2267, 13449
+    		43380
     };
-/*
+    
     Integer[] goals1 =	{	// NGOAgent
-    		13410, 16452, 2267, 13449
+    		43380
     };
 
     Integer[] goals2 =	{	// ElderlyAgent
-    		13410, 16452, 2267, 13449
+    		43380
     };
 
     Integer[] goals3 =	{	// LimitedActionsAgent
-    		13410, 16452, 2267, 13449
+    		43380
     };
-*/
+
     ///////////////////////////////////////////////////////////////////////////
 	/////////////////////////// BEGIN FUNCTIONS ///////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
@@ -244,19 +242,19 @@ public class MK_3 extends SimState	{
 
             // clear any existing agents from previous runs
             agents.clear();
-            //ngoagents.clear();
-            //elderlyagents.clear();
-            //limitedactionsagents.clear();
+            ngoagents.clear();
+            elderlyagents.clear();
+            limitedactionsagents.clear();
 
             //////////////////////////////////////////////
             ////////////////// AGENTS ////////////////////
             //////////////////////////////////////////////
 
             // initialize agents using the following source .CSV files
-            populateAgent("/data/NorfolkITNLSOA.csv");
-            //populateNGO("/data/NorfolkITNLSOANGO.csv");
-            //populateElderly("/data/NorfolkITNLSOAELDERLY.csv");
-            //populateLimitedActions("/data/NorfolkITNLSOALIMITED.csv");
+            populateAgent("/data/NorfolkITNLSOAAGENT.csv");
+            populateNGO("/data/NorfolkITNLSOANGO.csv");
+            populateElderly("/data/NorfolkITNLSOAELDERLY.csv");
+            populateLimitedActions("/data/NorfolkITNLSOALIMITED.csv");
             System.out.println();
             System.out.println("Starting simulation...");
 
@@ -269,20 +267,19 @@ public class MK_3 extends SimState	{
             //HouseholdsFZ.setMBR(MBR);
             //Households.setMBR(MBR);
             agents.setMBR(MBR);
-            //ngoagents.setMBR(MBR);
-            //elderlyagents.setMBR(MBR);
-            //limitedactionsagents.setMBR(MBR);
+            ngoagents.setMBR(MBR);
+            elderlyagents.setMBR(MBR);
+            limitedactionsagents.setMBR(MBR);
 
             // Ensure that the spatial index is updated after all the agents move
             schedule.scheduleRepeating( agents.scheduleSpatialIndexUpdater(),
             		Integer.MAX_VALUE, 1.0);
-            /*schedule.scheduleRepeating( ngoagents.scheduleSpatialIndexUpdater(),
+            schedule.scheduleRepeating( ngoagents.scheduleSpatialIndexUpdater(),
             		Integer.MAX_VALUE, 1.0);
             schedule.scheduleRepeating( elderlyagents.scheduleSpatialIndexUpdater(),
             		Integer.MAX_VALUE, 1.0);
             schedule.scheduleRepeating( limitedactionsagents.scheduleSpatialIndexUpdater(),
             		Integer.MAX_VALUE, 1.0);
-			*/
             
             /**
              * Steppable that flips Agent paths once everyone reaches their destinations
@@ -301,7 +298,7 @@ public class MK_3 extends SimState	{
                             return; 
                         }
                     }
-/*
+                    
                     for (NGOAgent b : gstate.ngoAgentList)	{
                         if (!b.reachedDestination)	{
                             return;
@@ -319,11 +316,11 @@ public class MK_3 extends SimState	{
                             return;
                         }
                     }
- 					*/
+                    
                     // Now send everyone back in the opposite direction
                     boolean toWork = gstate.goToWork;
                     gstate.goToWork = !toWork;
-/*
+                    
                     boolean toWork1 = gstate.goToWork1;
                     gstate.goToWork1 = !toWork1;
 
@@ -332,14 +329,14 @@ public class MK_3 extends SimState	{
 
                     boolean toWork3 = gstate.goToWork3;
                     gstate.goToWork3 = !toWork3;
-*/
+                    
                     // otherwise everyone has reached their latest destination:
                     // turn them back
                     // turning off means agents reach first destination and stay there.
                     for (MainAgent a : gstate.agentList) 	{
                         a.flipPath();
                     }
-/*
+
                     for (NGOAgent b : gstate.ngoAgentList)	{
                         b.flipPath();
                     }
@@ -351,7 +348,6 @@ public class MK_3 extends SimState	{
                     for (LimitedActionsAgent d : gstate.limitedActionsAgentList)	{
                         d.flipPath();
                     }
-                    */
                 }
             };
             schedule.scheduleRepeating(flipper, 10);
@@ -427,19 +423,20 @@ public class MK_3 extends SimState	{
 
                 int pop = Integer.parseInt(bits[49]);
                 //System.out.println();
-                //System.out.println("Road segment population (AX:POP): " +pop);
+                System.out.println("Main Agent road segment population (AX:POP): " +pop);
 
-                String homeTract = bits[11];
-                //System.out.println("Main Agent homeTract (L:ROAD_ID_1): " +homeTract);
+                String homeTract = bits[56];
+                System.out.println("Main Agent homeTract (BE:FID_1): " +homeTract);
 
                 String workTract = bits[50];
-                //System.out.println("Main Agent workTract (AY:WORK): " +workTract);
+                System.out.println("Main Agent workTract (AY:WORK): " +workTract);
 
-                String id_id = bits[11];
-                //System.out.println("Main Agent ID_ID (L:ROAD_ID_1): " +id_id);
+                String id_id = bits[56];
+                System.out.println("Main Agent ID_ID (BE:FID_1): " +id_id);
 
-                String ROAD_ID = bits[11];
-                System.out.println("Main Agent road segment (L:ROAD_ID_1): " +ROAD_ID);
+                String ROAD_ID = bits[53];
+                System.out.println("Main Agent road segment (BB:TARGET_FID): " +ROAD_ID);
+                //System.out.println("Main Agent road segment (L:ROAD_ID_1): " +ROAD_ID);
                 //System.out.println();
                 
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
@@ -451,6 +448,7 @@ public class MK_3 extends SimState	{
                 //System.out.println("goalEdge: " +goalEdge);
                 //System.out.println("goals: " +goals);
                 //System.out.println("homeNode: " +goals);
+                //System.out.println();
 
                 for (int i = 0; i < pop; i++)	{
                 	//pop; i++)	{ 	// NO IDEA IF THIS MAKES A DIFFERENCE!?!
@@ -487,7 +485,7 @@ public class MK_3 extends SimState	{
 				e.printStackTrace();
 		}
     }
-/*
+
     //////////////////////// NGOAgent /////////////////////////////
 
     public void populateNGO(String filename)	{
@@ -508,19 +506,20 @@ public class MK_3 extends SimState	{
                 
                 int pop = Integer.parseInt(bits[49]);
                 //System.out.println();
-                //System.out.println("Road segment population (AX:POP): " +pop);
+                System.out.println("NGO Agent road segment population (AX:POP): " +pop);
 
-                String homeTract = bits[11];
-                //System.out.println("NGO Agent homeTract (L:ROAD_ID_1): " +homeTract);
+                String homeTract = bits[56];
+                System.out.println("NGO Agent homeTract (BE:FID_1): " +homeTract);
 
                 String workTract = bits[50];
-                //System.out.println("NGO Agent workTract (AY:WORK): " +workTract);
+                System.out.println("NGO Agent workTract (AY:WORK): " +workTract);
 
-                String id_id = bits[11];
-                //System.out.println("NGO Agent ID_ID (L:ROAD_ID_1): " +id_id);
+                String id_id = bits[56];
+                System.out.println("NGO Agent ID_ID (BE:FID_1): " +id_id);
 
-                String ROAD_ID = bits[11];
-                System.out.println("NGO Agent road segment (L:ROAD_ID_1): " +ROAD_ID);
+                String ROAD_ID = bits[53];
+                System.out.println("NGO Agent road segment (BB:TARGET_FID): " +ROAD_ID);
+                //System.out.println("Main Agent road segment (L:ROAD_ID_1): " +ROAD_ID);
                 //System.out.println();
 
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
@@ -531,14 +530,14 @@ public class MK_3 extends SimState	{
                 for (int i = 0; i < pop; i++)	{
                 	//pop; i++)	{ 	// NO IDEA IF THIS MAKES A DIFFERENCE!?!
                     NGOAgent a = new NGOAgent(this, homeTract, workTract, startingEdge, goalEdge);
-                    System.out.println(
+                    /*System.out.println(
                     		"NGO Agent " + i + ":	" 
             				+ " Home: " +homeTract + ";	"
                     		+ "	Work: " +workTract + ";	"
                     		//+ " Starting Edge: " +startingEdge + ";"
                     		+ "	Pop: " +pop + ";	"
                     		+ "	id_id: " +id_id + ";	"
-                    		+ "	Road_ID: " +ROAD_ID);
+                    		+ "	Road_ID: " +ROAD_ID);*/
                     boolean successfulStart = a.start(this);
 
                     if (!successfulStart)	{
@@ -581,19 +580,20 @@ public class MK_3 extends SimState	{
 
                 int pop = Integer.parseInt(bits[49]);
                 //System.out.println();
-                //System.out.println("Road segment population (AX:POP): " +pop);
+                System.out.println("Elderly Agent Road segment population (AX:POP): " +pop);
 
-                String homeTract = bits[11];
-                //System.out.println("Elderly Agent homeTract (L:ROAD_ID_1): " +homeTract);
+                String homeTract = bits[56];
+                System.out.println("Elderly Agent homeTract (BE:FID_1): " +homeTract);
 
                 String workTract = bits[50];
-                //System.out.println("Elderly Agent workTract (AY:WORK): " +workTract);
+                System.out.println("Elderly Agent workTract (AY:WORK): " +workTract);
 
-                String id_id = bits[11];
-                //System.out.println("Elderly Agent ID_ID (L:ROAD_ID_1): " +id_id);
+                String id_id = bits[56];
+                System.out.println("Elderly Agent ID_ID (BE:FID_1): " +id_id);
 
-                String ROAD_ID = bits[11];
-                System.out.println("Elderly Agent road segment (L:ROAD_ID_1): " +ROAD_ID);
+                String ROAD_ID = bits[53];
+                System.out.println("Elderly Agent road segment (BB:TARGET_FID): " +ROAD_ID);
+                //System.out.println("Main Agent road segment (L:ROAD_ID_1): " +ROAD_ID);
                 //System.out.println();
 
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
@@ -604,14 +604,14 @@ public class MK_3 extends SimState	{
                 for (int i = 0; i < pop; i++)	{
                 	//pop; i++)	{ 	// NO IDEA IF THIS MAKES A DIFFERENCE!?!
                     ElderlyAgent a = new ElderlyAgent(this, homeTract, workTract, startingEdge, goalEdge);
-                    System.out.println(
+                    /*System.out.println(
                     		"Elderly Agent " + i + ":	" 
             				+ " Home: " +homeTract + ";	"
                     		+ "	Work: " +workTract + ";	"
                     		//+ " Starting Edge: " +startingEdge + ";"
                     		+ "	Pop: " +pop + ";	"
                     		+ "	id_id: " +id_id + ";	"
-                    		+ "	Road_ID: " +ROAD_ID);
+                    		+ "	Road_ID: " +ROAD_ID);*/
                     boolean successfulStart = a.start(this);
 
                     if (!successfulStart)	{
@@ -654,19 +654,20 @@ public class MK_3 extends SimState	{
 
                 int pop = Integer.parseInt(bits[49]);
                 //System.out.println();
-                //System.out.println("Road segment population (AX:POP): " +pop);
+                System.out.println("LimAct Agent road segment population (AX:POP): " +pop);
 
-                String homeTract = bits[11];
-                //System.out.println("Limited Actions Agent homeTract (L:ROAD_ID_1): " +homeTract);
+                String homeTract = bits[56];
+                System.out.println("LimAct Agent homeTract (BE:FID_1): " +homeTract);
 
                 String workTract = bits[50];
-                //System.out.println("Limited Actions Agent workTract (AY:WORK): " +workTract);
+                System.out.println("LimAct Agent workTract (AY:WORK): " +workTract);
 
-                String id_id = bits[11];
-                //System.out.println("Limited Actions Agent ID_ID (L:ROAD_ID_1): " +id_id);
+                String id_id = bits[56];
+                System.out.println("LimAct Agent ID_ID (BE:FID_1): " +id_id);
 
-                String ROAD_ID = bits[11];
-                System.out.println("Limited Actions Agent road segment (L:ROAD_ID_1): " +ROAD_ID);
+                String ROAD_ID = bits[53];
+                System.out.println("LimAct Agent road segment (BB:TARGET_FID): " +ROAD_ID);
+                //System.out.println("Main Agent road segment (L:ROAD_ID_1): " +ROAD_ID);
                 //System.out.println();
 
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
@@ -677,14 +678,14 @@ public class MK_3 extends SimState	{
                 for (int i = 0; i < pop; i++)	{
                 	//pop; i++)	{ 	// NO IDEA IF THIS MAKES A DIFFERENCE!?!
                     LimitedActionsAgent a = new LimitedActionsAgent(this, homeTract, workTract, startingEdge, goalEdge);
-                    System.out.println(
+                    /*System.out.println(
                     		"Limited Actions Agent " + i + ":	" 
             				+ " Home: " +homeTract + ";	"
                     		+ "	Work: " +workTract + ";	"
                     		//+ " Starting Edge: " +startingEdge + ";"
                     		+ "	Pop: " +pop + ";	"
                     		+ "	id_id: " +id_id + ";	"
-                    		+ "	Road_ID: " +ROAD_ID);
+                    		+ "	Road_ID: " +ROAD_ID);*/
                     boolean successfulStart = a.start(this);
 
                     if (!successfulStart)	{
@@ -707,7 +708,6 @@ public class MK_3 extends SimState	{
 				e.printStackTrace();
 		}
     }
-*/
 
     /** adds nodes corresponding to road intersections to GeomVectorField
      *

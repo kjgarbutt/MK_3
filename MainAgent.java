@@ -80,7 +80,7 @@ public final class MainAgent implements Steppable	{
 	   homeNode = startingEdge.getDirEdge(0).getFromNode();
 	   workNode = goalEdge.getDirEdge(0).getToNode();
 	   homeTract = homeTract;
-	   workTract = workTract;
+	   //workTract = workTract;
 
 	   // set the location to be displayed
 	   GeometryFactory fact = new GeometryFactory();
