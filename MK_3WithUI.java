@@ -81,7 +81,7 @@ public class MK_3WithUI extends GUIState	{
          * @return name of the simulation
          */
         public static String getName()	{
-            return "EngD ABM Model MK_3";
+            return "EngD Model MK_3";
         }
 
 
@@ -250,7 +250,7 @@ public class MK_3WithUI extends GUIState	{
             // display.setClipping(false);
 
             displayFrame = display.createFrame();
-            displayFrame.setTitle("EngD ABM Model MK_2");
+            displayFrame.setTitle("EngD Model MK_3");
             c.registerFrame(displayFrame); // register the frame so it appears in
 
             // Put portrayals in order from bottom layer to top
